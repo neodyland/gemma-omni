@@ -9,7 +9,7 @@ import urllib
 from tqdm import tqdm
 import re
 
-RE = re.compile(r"[a-zA-Z0-9>:]")
+RE = re.compile(r"[a-zA-Z0-9>:[\]!]")
 
 
 def is_ok(t, e=True):
@@ -29,7 +29,8 @@ def collate(model: GemmaOmni):
         chat = [
             {
                 "role": "user",
-                "content": e + ("\n" + b["input"][i]) if len(b["input"][i]) > 0 else "",
+                "content": e
+                + (("\n" + b["input"][i]) if len(b["input"][i]) > 0 else ""),
             },
             {"role": "assistant", "content": model.audio_token},
         ]
