@@ -6,9 +6,10 @@ from datasets import load_dataset
 import torch
 
 torch.backends.cudnn.benchmark = True
+torch.backends.cudnn.allow_tf32 = True
 
-max_seq_length = 2048
-ds = load_dataset("googlefan/sakura-audio", split="train")
+max_seq_length = 4096
+ds = load_dataset("googlefan/guanaco-jp-audio", split="train")
 
 model, tokenizer = FastLanguageModel.from_pretrained(
     model_name="./data/llm",
@@ -51,7 +52,7 @@ trainer = SFTTrainer(
         per_device_train_batch_size=1,
         gradient_accumulation_steps=4,
         warmup_ratio=0.01,
-        num_train_epochs=5,
+        num_train_epochs=3,
         learning_rate=1e-4,
         fp16=not is_bfloat16_supported(),
         bf16=is_bfloat16_supported(),
