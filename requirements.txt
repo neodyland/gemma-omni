@@ -5,3 +5,5 @@ accelerate
 datasets
 snac
 trl
+bitsandbytes
+soundfile

@@ -20,6 +20,7 @@ if __name__ == "__main__":
         max_new_tokens=448,
         return_dict_in_generate=False,
         streamer=TextStreamer(tokenizer=model.tokenizer, skip_prompt=True),
+        repetition_penalty=1.2,
     )
     res = [x - model.audio_start_token_id for x in res.tolist()[0][input_ids.size(1) :]]
     res_a = list(filter(lambda x: x >= 0, res))
