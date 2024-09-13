@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 def collate(model: GemmaOmni):
     b = load_dataset("saldra/sakura_japanese_dataset", split="train")
-    for i, e in enumerate(b["instruction"]):
+    for i, e in tqdm(enumerate(b["instruction"])):
         chat = [
             {"role": "user", "content": e},
             {"role": "assistant", "content": model.audio_token},
@@ -30,6 +30,6 @@ def create_wav(text: str):
 
 if __name__ == "__main__":
     model = GemmaOmni()
-    for i, e in tqdm(enumerate(collate(model))):
+    for i, e in enumerate(collate(model)):
         with open(f"./data/ds/{i}.txt", "w", encoding="utf8") as w:
             w.write(model.tokenizer.decode(e))

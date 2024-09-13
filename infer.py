@@ -10,7 +10,7 @@ if __name__ == "__main__":
         [
             {
                 "role": "user",
-                "content": "5年生は自主的に本の寄付活動に参加しました。 5-1組は500冊、5-2組は5-1組が寄付した本の80％、5-3組は5-2組が寄付した本の120％を寄付しました。 5-1組と5-3組ではどちらが多く本を寄付したでしょうか？ (2通りで比較してください)",
+                "content": "こんにちは",
             }
         ],
         [],
@@ -20,9 +20,8 @@ if __name__ == "__main__":
         max_new_tokens=448,
         return_dict_in_generate=False,
         streamer=TextStreamer(tokenizer=model.tokenizer, skip_prompt=True),
-        repetition_penalty=2.0,
     )
-    res = [x - model.audio_start_token_id for x in res.tolist()[0]]
+    res = [x - model.audio_start_token_id for x in res.tolist()[0][input_ids.size(1) :]]
     res_a = list(filter(lambda x: x >= 0, res))
     res_a_t = []
     for i in range(len(res_a) // 7 * 7):
@@ -31,6 +30,7 @@ if __name__ == "__main__":
         [x + model.audio_start_token_id for x in list(filter(lambda x: x < 0, res))],
         skip_special_tokens=True,
     )
+    print(res_text)
     with torch.inference_mode():
         sf.write(
             "data/out.wav",
