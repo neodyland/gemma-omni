@@ -1,120 +1,38 @@
 from datasets import load_dataset
-import os
+from io import BytesIO
+from model.gemma_omni import GemmaOmni
+import librosa
 import requests
-from transformers import GemmaTokenizerFast
-import re
-
-RE_ENG = re.compile(r"[a-zA-Z]{2,}|訳")
-
-tok: GemmaTokenizerFast = GemmaTokenizerFast.from_pretrained(
-    "unsloth/gemma-2-9b-it-bnb-4bit"
-)
-
-cpus = os.cpu_count() * 3 // 4
+from datasets import load_dataset
+import torch
+import urllib
+from tqdm import tqdm
 
 
-def is_ok(s: str):
-    return all(
-        [
-            x not in s
-            for x in [
-                "^",
-                "$",
-                "frac",
-                "\\",
-                "-",
-                "+",
-                "/",
-                "*",
-                "=",
-                "[",
-                "]",
-                "(",
-                ")",
-            ]
+def collate(model: GemmaOmni):
+    b = load_dataset("HachiML/Hachi-Alpaca", split="v1.0_cleaned")
+    for i, e in enumerate(tqdm(b["instruction"])):
+        chat = [
+            {
+                "role": "user",
+                "content": e + ("\n" + b["input"][i]) if len(b["input"][i]) > 0 else "",
+            },
+            {"role": "assistant", "content": model.audio_token},
         ]
+        wavs = [create_wav(b["output"][i])]
+        with torch.inference_mode():
+            yield model.encode(chat, wavs, False).squeeze(0)
+
+
+def create_wav(text: str):
+    res = requests.get(
+        f"http://localhost:5004/?text={urllib.parse.quote(text)}&voice=98",
     )
-
-
-def collate():
-    b = load_dataset("chargoddard/WebInstructSub-prometheus", split="train")
-    b = b.rename_columns({"instruction": "user", "generation": "assistant"})
-    b = b.select_columns(["user", "assistant"])
-    b = b.filter(
-        lambda b: is_ok(b["user"]) and is_ok(b["assistant"]),
-        batched=False,
-        num_proc=cpus,
-    )
-    b = b.map(
-        lambda x: translate(x),
-        batched=False,
-        num_proc=cpus * 40,
-    )
-    b = b.filter(
-        lambda b: b["user"] != "" and b["assistant"] != "",
-        batched=False,
-        num_proc=cpus,
-    )
-    return b
-
-
-def translate(pair):
-    x = translate__(pair["user"])
-    if x == "":
-        print("Failed")
-        return {
-            "user": "",
-            "assistant": "",
-        }
-    y = translate__(pair["assistant"])
-    if y == "":
-        print("Failed")
-    return {
-        "user": x,
-        "assistant": y,
-    }
-
-
-def translate__(q: str):
-    res = ""
-    c = 0
-    while res == "" and c < 3:
-        res = translate_(q)
-        c = c + 1
-    return res
-
-
-def translate_(q: str):
-    try:
-        res = (
-            requests.post(
-                "http://localhost:8000/v1/completions",
-                json={
-                    "prompt": tok.apply_chat_template(
-                        [
-                            {
-                                "role": "user",
-                                "content": f"{q}\n日本語の話し言葉に訳し、結果だけを出力してください。",
-                            }
-                        ],
-                        tokenize=False,
-                        add_generation_prompt=True,
-                    )[len(tok.bos_token) :],
-                    "model": "default",
-                    "max_tokens": 512,
-                },
-            )
-            .json()["choices"][0]["text"]
-            .strip()
-        )
-        if RE_ENG.match(res):
-            return ""
-        return res or ""
-    except:
-        return ""
+    return librosa.load(BytesIO(res.content), sr=24000)[0]
 
 
 if __name__ == "__main__":
-    ds = collate()
-    print(len(ds))
-    ds.push_to_hub("googlefan/WebInstructSub-ja")
+    model = GemmaOmni()
+    for i, e in enumerate(collate(model)):
+        with open(f"./data/ds_big/{i}.txt", "w", encoding="utf8") as w:
+            w.write(model.tokenizer.decode(e))
