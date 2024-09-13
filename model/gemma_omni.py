@@ -7,16 +7,14 @@ import numpy as np
 
 
 class GemmaOmni(nn.Module):
-    def __init__(self) -> None:
+    def __init__(self, ckpt: str = "./data/llm") -> None:
         super().__init__()
         self.llm: Gemma2ForCausalLM = Gemma2ForCausalLM.from_pretrained(
-            "./data/llm", torch_dtype=torch.bfloat16
+            ckpt, torch_dtype=torch.bfloat16
         )
         self.snac = SnacGasi()
         self.audio_token = "<audio_placeholder>"
-        self.tokenizer: GemmaTokenizerFast = GemmaTokenizerFast.from_pretrained(
-            "./data/llm"
-        )
+        self.tokenizer: GemmaTokenizerFast = GemmaTokenizerFast.from_pretrained(ckpt)
         self.audio_start_token_id = self.tokenizer.convert_tokens_to_ids(
             "<audio_token_1>"
         )

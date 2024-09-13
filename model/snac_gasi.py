@@ -51,3 +51,16 @@ class SnacGasi(nn.Module):
                 for x in [ids_old_all_1, ids_old_all_2, ids_old_all_3]
             ]
         )
+
+
+if __name__ == "__main__":
+    import librosa
+
+    snac = SnacGasi()
+    print(
+        snac.encode(
+            torch.from_numpy(librosa.load("./data/wavs/vicuna_1.wav", sr=24000)[0])
+            .unsqueeze(0)
+            .unsqueeze(0)
+        ).size(1)
+    )
