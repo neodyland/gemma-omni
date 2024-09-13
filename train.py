@@ -1,6 +1,3 @@
-import os
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 from unsloth import FastLanguageModel
 from unsloth import is_bfloat16_supported
 from trl import SFTTrainer
