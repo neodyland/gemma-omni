@@ -1,0 +1,7 @@
+unsloth #
+torch
+transformers
+accelerate
+datasets
+snac
+trl

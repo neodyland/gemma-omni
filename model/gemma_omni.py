@@ -15,7 +15,7 @@ class GemmaOmni(nn.Module):
         self.snac = SnacGasi()
         self.audio_token = "<audio_placeholder>"
         self.tokenizer: GemmaTokenizerFast = GemmaTokenizerFast.from_pretrained(
-            "./data/tokenizer"
+            "./data/llm"
         )
         self.audio_start_token_id = self.tokenizer.convert_tokens_to_ids(
             "<audio_token_1>"
@@ -24,9 +24,14 @@ class GemmaOmni(nn.Module):
         self.dtype = torch.bfloat16
         self.to(self.device, dtype=self.dtype)
 
-    def encode(self, conv: List[Dict[str, str]], audios: List[np.ndarray]):
+    def encode(
+        self,
+        conv: List[Dict[str, str]],
+        audios: List[np.ndarray],
+        add_generation_prompt=True,
+    ):
         prompt = self.tokenizer.apply_chat_template(
-            conv, tokenize=False, add_generation_prompt=True
+            conv, tokenize=False, add_generation_prompt=add_generation_prompt
         )
         parts = []
         audios = [
@@ -47,9 +52,7 @@ class GemmaOmni(nn.Module):
                 ).to(device=self.device)
             )
         input_ids = torch.cat(parts, dim=1)
-        return input_ids, torch.ones(
-            *input_ids.shape, dtype=input_ids.dtype, device=input_ids.device
-        )
+        return input_ids
 
 
 if __name__ == "__main__":
@@ -57,7 +60,7 @@ if __name__ == "__main__":
     import librosa
 
     audio, _sr = librosa.load("./data/wavs/vicuna_1.wav", sr=model.snac.sr)
-    input_ids, _attn_mask = model.encode(
+    input_ids = model.encode(
         [
             {
                 "role": "user",
