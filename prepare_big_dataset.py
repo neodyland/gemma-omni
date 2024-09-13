@@ -14,7 +14,26 @@ cpus = os.cpu_count() * 3 // 4
 
 
 def is_ok(s: str):
-    return all([x not in s for x in ["^", "$", "frac"]])
+    return all(
+        [
+            x not in s
+            for x in [
+                "^",
+                "$",
+                "frac",
+                "\\",
+                "-",
+                "+",
+                "/",
+                "*",
+                "=",
+                "[",
+                "]",
+                "(",
+                ")",
+            ]
+        ]
+    )
 
 
 def collate():
@@ -27,12 +46,9 @@ def collate():
         num_proc=cpus,
     )
     b = b.map(
-        lambda x: {
-            "user": translate(x["user"]),
-            "assistant": translate(x["assistant"]),
-        },
+        lambda x: translate(x),
         batched=False,
-        num_proc=cpus * 20,
+        num_proc=cpus * 40,
     )
     b = b.filter(
         lambda b: b["user"] != "" and b["assistant"] != "",
@@ -42,16 +58,29 @@ def collate():
     return b
 
 
-def translate(q: str):
+def translate(pair):
+    x = translate__(pair["user"])
+    if x == "":
+        print("Failed")
+        return {
+            "user": "",
+            "assistant": "",
+        }
+    y = translate__(pair["assistant"])
+    if y == "":
+        print("Failed")
+    return {
+        "user": x,
+        "assistant": y,
+    }
+
+
+def translate__(q: str):
     res = ""
     c = 0
     while res == "" and c < 3:
         res = translate_(q)
         c = c + 1
-    if res == "":
-        print("Failed")
-    else:
-        print("Success")
     return res
 
 
