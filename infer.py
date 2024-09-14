@@ -5,7 +5,7 @@ import soundfile as sf
 from transformers import Gemma2ForCausalLM
 
 if __name__ == "__main__":
-    model = GemmaOmni("cpu")
+    model = GemmaOmni()
     llm: Gemma2ForCausalLM = Gemma2ForCausalLM.from_pretrained(
         "./data/outputs/checkpoint-500",
         attn_implementation="sdpa",
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     for i in range(len(res_a) // 7 * 7):
         res_a_t.append(res_a[i])
     res_text = model.tokenizer.decode(
-        [x + model.audio_start_token_id for x in list(filter(lambda x: x < 0, res))],
+        [x + model.audio_start_token_id for x in res if x < 0],
         skip_special_tokens=True,
     )
     print(res_text)
