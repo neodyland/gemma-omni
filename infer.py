@@ -2,15 +2,16 @@ from model.gemma_omni import GemmaOmni
 from transformers import TextStreamer
 import torch
 import soundfile as sf
-from transformers import Gemma2ForCausalLM
+from unsloth import FastLanguageModel
 
 if __name__ == "__main__":
     model = GemmaOmni()
-    llm: Gemma2ForCausalLM = Gemma2ForCausalLM.from_pretrained(
+    llm: FastLanguageModel = FastLanguageModel.from_pretrained(
         "./data/outputs/checkpoint-500",
         attn_implementation="sdpa",
         device_map="cuda",
     )
+    FastLanguageModel.for_inference(llm)
     input_ids = model.encode(
         [
             {
