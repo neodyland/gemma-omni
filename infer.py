@@ -6,7 +6,7 @@ from unsloth import FastLanguageModel
 
 if __name__ == "__main__":
     model = GemmaOmni()
-    llm: FastLanguageModel = FastLanguageModel.from_pretrained(
+    llm, _ = FastLanguageModel.from_pretrained(
         "./data/outputs/checkpoint-500",
         attn_implementation="sdpa",
         device_map="cuda",
