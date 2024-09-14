@@ -12,7 +12,8 @@ class SnacGasi(nn.Module):
 
     def encode(self, ids_bef: torch.Tensor):
         bs = ids_bef.size(0)
-        ids = self.model.encode(ids_bef)
+        with torch.inference_mode():
+            ids = self.model.encode(ids_bef)
         ids_new_all = []
         for b in range(bs):
             ids_new = []
@@ -45,12 +46,13 @@ class SnacGasi(nn.Module):
             ids_old_all_1.append(ids_old_1)
             ids_old_all_2.append(ids_old_2)
             ids_old_all_3.append(ids_old_3)
-        return self.model.decode(
-            [
-                torch.tensor(x).to(ids.device, dtype=ids.dtype, non_blocking=True)
-                for x in [ids_old_all_1, ids_old_all_2, ids_old_all_3]
-            ]
-        )
+        with torch.inference_mode():
+            return self.model.decode(
+                [
+                    torch.tensor(x).to(ids.device, dtype=ids.dtype, non_blocking=True)
+                    for x in [ids_old_all_1, ids_old_all_2, ids_old_all_3]
+                ]
+            )
 
 
 if __name__ == "__main__":

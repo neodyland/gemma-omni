@@ -15,7 +15,7 @@ model, tokenizer = FastLanguageModel.from_pretrained(
     model_name="./data/llm",
     max_seq_length=max_seq_length,
     dtype=None,
-    attn_implementation="spda",
+    attn_implementation="sdpa",
     load_in_4bit=True,
 )
 

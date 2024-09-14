@@ -1,5 +1,5 @@
 from torch import nn
-from transformers import Gemma2ForCausalLM, GemmaTokenizerFast
+from transformers import GemmaTokenizerFast
 import torch
 from .snac_gasi import SnacGasi
 from typing import List, Dict
@@ -7,18 +7,17 @@ import numpy as np
 
 
 class GemmaOmni(nn.Module):
-    def __init__(self, ckpt: str = "./data/llm") -> None:
+    def __init__(self, device="cuda") -> None:
         super().__init__()
-        self.llm: Gemma2ForCausalLM = Gemma2ForCausalLM.from_pretrained(
-            ckpt, torch_dtype=torch.bfloat16
-        )
         self.snac = SnacGasi()
         self.audio_token = "<audio_placeholder>"
-        self.tokenizer: GemmaTokenizerFast = GemmaTokenizerFast.from_pretrained(ckpt)
+        self.tokenizer: GemmaTokenizerFast = GemmaTokenizerFast.from_pretrained(
+            "./data/llm"
+        )
         self.audio_start_token_id = self.tokenizer.convert_tokens_to_ids(
             "<audio_token_1>"
         )
-        self.device = "cuda"
+        self.device = device
         self.dtype = torch.bfloat16
         self.to(self.device, dtype=self.dtype)
 
@@ -56,6 +55,9 @@ class GemmaOmni(nn.Module):
 if __name__ == "__main__":
     model = GemmaOmni()
     import librosa
+    from unsloth import FastLanguageModel
+
+    llm = FastLanguageModel.from_pretrained("./data/llm")
 
     audio, _sr = librosa.load("./data/wavs/vicuna_1.wav", sr=model.snac.sr)
     input_ids = model.encode(
@@ -67,9 +69,10 @@ if __name__ == "__main__":
         ],
         [audio],
     )
-    res = model.llm.generate(
-        input_ids, max_new_tokens=1024, return_dict_in_generate=False
-    )
+    with torch.inference_mode():
+        res = llm.generate(
+            input_ids, max_new_tokens=1024, return_dict_in_generate=False
+        )
     res_text = model.tokenizer.decode(
         res.squeeze(0)[input_ids.size(1) :], skip_special_tokens=True
     )

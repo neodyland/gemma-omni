@@ -2,10 +2,15 @@ from model.gemma_omni import GemmaOmni
 from transformers import TextStreamer
 import torch
 import soundfile as sf
+from transformers import Gemma2ForCausalLM
 
 if __name__ == "__main__":
-    model = GemmaOmni("./data/outputs/checkpoint-126")
-
+    model = GemmaOmni("cpu")
+    llm: Gemma2ForCausalLM = Gemma2ForCausalLM.from_pretrained(
+        "./data/outputs/checkpoint-500",
+        attn_implementation="sdpa",
+        device_map="cuda",
+    )
     input_ids = model.encode(
         [
             {
@@ -14,14 +19,15 @@ if __name__ == "__main__":
             }
         ],
         [],
-    )
-    res = model.llm.generate(
-        input_ids,
-        max_new_tokens=448,
-        return_dict_in_generate=False,
-        streamer=TextStreamer(tokenizer=model.tokenizer, skip_prompt=True),
-        repetition_penalty=1.2,
-    )
+    ).to(llm.device)
+    with torch.inference_mode():
+        res = llm.generate(
+            input_ids,
+            max_new_tokens=448,
+            return_dict_in_generate=False,
+            streamer=TextStreamer(tokenizer=model.tokenizer, skip_prompt=True),
+            repetition_penalty=1.2,
+        )
     res = [x - model.audio_start_token_id for x in res.tolist()[0][input_ids.size(1) :]]
     res_a = list(filter(lambda x: x >= 0, res))
     res_a_t = []
