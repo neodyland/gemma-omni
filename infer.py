@@ -7,7 +7,7 @@ from unsloth import FastLanguageModel
 if __name__ == "__main__":
     model = GemmaOmni()
     llm, _ = FastLanguageModel.from_pretrained(
-        "./data/outputs/checkpoint-1902",
+        "./data/outputs/checkpoint-3500",
         attn_implementation="sdpa",
         device_map="cuda",
     )
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         [
             {
                 "role": "user",
-                "content": "こんにちは",
+                "content": "原神について教えて",
             }
         ],
         [],
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     with torch.inference_mode():
         res = llm.generate(
             input_ids,
-            max_new_tokens=448,
+            max_new_tokens=2563,
             return_dict_in_generate=False,
             streamer=TextStreamer(tokenizer=model.tokenizer, skip_prompt=True),
             repetition_penalty=1.2,
