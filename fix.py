@@ -3,10 +3,10 @@ from transformers import Gemma2ForCausalLM, GemmaTokenizerFast
 from model.snac_gasi import SnacGasi
 
 llm: Gemma2ForCausalLM = Gemma2ForCausalLM.from_pretrained(
-    "unsloth/gemma-2-9b-it-bnb-4bit", torch_dtype=torch.bfloat16
+    "unsloth/gemma-2-2b-it-bnb-4bit", torch_dtype=torch.bfloat16
 )
 tokenizer: GemmaTokenizerFast = GemmaTokenizerFast.from_pretrained(
-    "unsloth/gemma-2-9b-it-bnb-4bit"
+    "unsloth/gemma-2-2b-it-bnb-4bit"
 )
 snac = SnacGasi()
 tokenizer.chat_template = tokenizer.chat_template.replace("model", "audio")

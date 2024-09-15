@@ -1,7 +1,9 @@
-from unsloth import FastLanguageModel
-from unsloth import is_bfloat16_supported
-from trl import SFTTrainer
-from transformers import TrainingArguments
+from unsloth import (
+    FastLanguageModel,
+    is_bfloat16_supported,
+    UnslothTrainer,
+    UnslothTrainingArguments,
+)
 from datasets import load_dataset
 import torch
 
@@ -30,6 +32,8 @@ model = FastLanguageModel.get_peft_model(
         "gate_proj",
         "up_proj",
         "down_proj",
+        "lm_head",
+        "embed_tokens",
     ],
     lora_alpha=16,
     lora_dropout=0,
@@ -41,19 +45,20 @@ model = FastLanguageModel.get_peft_model(
     loftq_config=None,
 )
 
-trainer = SFTTrainer(
+trainer = UnslothTrainer(
     model=model,
     train_dataset=ds,
     dataset_text_field="text",
     max_seq_length=max_seq_length,
     tokenizer=tokenizer,
     packing=True,
-    args=TrainingArguments(
+    args=UnslothTrainingArguments(
         per_device_train_batch_size=1,
         gradient_accumulation_steps=4,
         warmup_ratio=0.01,
         num_train_epochs=5,
         learning_rate=1e-4,
+        embedding_learning_rate=3e-5,
         fp16=not is_bfloat16_supported(),
         bf16=is_bfloat16_supported(),
         logging_steps=1,
