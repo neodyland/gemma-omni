@@ -2,4 +2,4 @@ __pycache__/
 data/
 venv/
 llama.cpp/
-_unsloth_temporary_saved_buffers/
+_unsloth*/
