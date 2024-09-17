@@ -5,9 +5,6 @@ from unsloth import FastLanguageModel
 
 if __name__ == "__main__":
     model = LLMOmni()
-    model.tokenizer.chat_template = model.tokenizer.chat_template.replace(
-        "audio", "model"
-    )
     llm, _ = FastLanguageModel.from_pretrained(
         "./data/outputs/checkpoint-2500",
         attn_implementation="sdpa",
