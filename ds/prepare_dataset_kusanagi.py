@@ -18,7 +18,7 @@ def is_ok(t):
 
 
 def collate(model: LLMOmni):
-    b = load_dataset("neody/kusanagi", split="train")
+    b = load_dataset("neody/kusanagi", split="train", streaming=True)
     b = b.filter(lambda x: is_ok(x["text"]))
     for e in tqdm(b["text"]):
         try:
