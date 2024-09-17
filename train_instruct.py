@@ -11,10 +11,10 @@ torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.allow_tf32 = True
 
 max_seq_length = 4096
-ds = load_dataset("googlefan/kusanagi-audio", split="train")
+ds = load_dataset("googlefan/guanaco-jp-audio", split="train")
 
 model, tokenizer = FastLanguageModel.from_pretrained(
-    model_name="./data/llm",
+    model_name="./data/llm-pretrained",
     max_seq_length=max_seq_length,
     dtype=None,
     attn_implementation="sdpa",
@@ -62,7 +62,7 @@ trainer = UnslothTrainer(
         fp16=not is_bfloat16_supported(),
         bf16=is_bfloat16_supported(),
         logging_steps=1,
-        output_dir="data/outputs-pretrained",
+        output_dir="data/outputs-finetuned",
         optim="adamw_8bit",
         seed=3407,
         save_total_limit=2,
