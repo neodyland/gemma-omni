@@ -10,7 +10,7 @@ import re
 from pathlib import Path
 import random
 
-RE = re.compile(r"[a-zA-Z0-9>:[\]!★▼◆♪]")
+RE = re.compile(r"[a-zA-Z0-9>:[\]!★▼◆♪■*＊※]")
 
 
 def is_ok(t):
