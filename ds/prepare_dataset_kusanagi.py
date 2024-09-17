@@ -3,7 +3,7 @@ from io import BytesIO
 from model.llm_omni import LLMOmni
 import librosa
 import requests
-from datasets import load_dataset
+from datasets import load_dataset, IterableDataset
 import torch
 from tqdm import tqdm
 import re
@@ -18,10 +18,11 @@ def is_ok(t):
 
 
 def collate(model: LLMOmni):
-    b = load_dataset("neody/kusanagi", split="train", streaming=True)
+    b: IterableDataset = load_dataset("neody/kusanagi", split="train", streaming=True)
     b = b.filter(lambda x: is_ok(x["text"]))
-    for e in tqdm(b["text"]):
+    for e in tqdm(b.__iter__()):
         try:
+            e = e["text"]
             is_wav = random.choice([True, False])
             is_user = random.choice([True, False])
             chat = [
