@@ -8,6 +8,7 @@ import torch
 from tqdm import tqdm
 import re
 from pathlib import Path
+import random
 
 RE = re.compile(r"[a-zA-Z0-9>:[\]!]")
 
@@ -27,17 +28,26 @@ def collate(model: LLMOmni):
     )
     for i, e in enumerate(tqdm(b["instruction"])):
         try:
+            user = e + (("\n" + b["input"][i]) if len(b["input"][i]) > 0 else "")
+            assistant = b["output"][i]
+            is_user_speech = random.choice([True, False])
+            is_assistant_speech = random.choice([True, False])
             chat = [
                 {
-                    "role": "user",
-                    "content": e
-                    + (("\n" + b["input"][i]) if len(b["input"][i]) > 0 else ""),
+                    "role": "user_speech" if is_user_speech else "user",
+                    "content": model.audio_token if is_user_speech else user,
                 },
-                {"role": "speech", "content": model.audio_token},
+                {
+                    "role": "assistant_speech" if is_assistant_speech else "assistant",
+                    "content": model.audio_token if is_assistant_speech else assistant,
+                },
             ]
-            wavs = [create_wav(b["output"][i])]
+            wavs = [
+                create_wav(user) if is_user_speech else None,
+                create_wav(assistant) if is_assistant_speech else None,
+            ]
             with torch.inference_mode():
-                yield model.encode(chat, wavs, False).squeeze(0)
+                yield model.encode(chat, [x for x in wavs if x], False).squeeze(0)
         except Exception as err:
             print(f"Error: {err}")
 
@@ -51,7 +61,7 @@ def create_wav(text: str):
 
 if __name__ == "__main__":
     model = LLMOmni()
-    Path("./data/ds").mkdir(exist_ok=True, parents=True)
+    Path("./data/ds_guanaco").mkdir(exist_ok=True, parents=True)
     for i, e in enumerate(collate(model)):
-        with open(f"./data/ds/{i}.txt", "w", encoding="utf8") as w:
+        with open(f"./data/ds_guanaco/{i}.txt", "w", encoding="utf8") as w:
             w.write(model.tokenizer.decode(e))
