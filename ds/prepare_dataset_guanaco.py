@@ -47,7 +47,9 @@ def collate(model: LLMOmni):
                 create_wav(assistant) if is_assistant_speech else None,
             ]
             with torch.inference_mode():
-                yield model.encode(chat, [x for x in wavs if x], False).squeeze(0)
+                yield model.encode(
+                    chat, [x for x in wavs if x is not None], False
+                ).squeeze(0)
         except Exception as err:
             print(f"Error: {err}")
 
