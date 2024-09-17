@@ -1,6 +1,6 @@
 from datasets import load_dataset, VerificationMode
 from io import BytesIO
-from model.gemma_omni import GemmaOmni
+from model.llm_omni import LLMOmni
 import librosa
 import requests
 from datasets import load_dataset
@@ -16,7 +16,7 @@ def is_ok(t, e=True):
     return not RE.match(t) and len(t) < 150 and (len(t) > 20 if e else True)
 
 
-def collate(model: GemmaOmni):
+def collate(model: LLMOmni):
     b = load_dataset(
         "Aruno/guanaco_jp", split="train", verification_mode=VerificationMode.NO_CHECKS
     )
@@ -47,7 +47,7 @@ def create_wav(text: str):
 
 
 if __name__ == "__main__":
-    model = GemmaOmni()
+    model = LLMOmni()
     for i, e in enumerate(collate(model)):
         with open(f"./data/ds_big/{i}.txt", "w", encoding="utf8") as w:
             w.write(model.tokenizer.decode(e))

@@ -1,10 +1,10 @@
 from openai import OpenAI
-from model.gemma_omni import GemmaOmni
+from model.llm_omni import LLMOmni
 import torch
 import soundfile as sf
 
 ai = OpenAI(base_url="http://localhost:8080", api_key="hello")
-model = GemmaOmni()
+model = LLMOmni()
 
 res = ai.completions.create(
     model="default",

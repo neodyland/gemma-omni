@@ -1,13 +1,13 @@
-from model.gemma_omni import GemmaOmni
+from model.llm_omni import LLMOmni
 from transformers import TextStreamer
 import torch
 import soundfile as sf
 from unsloth import FastLanguageModel
 
 if __name__ == "__main__":
-    model = GemmaOmni()
+    model = LLMOmni()
     llm, _ = FastLanguageModel.from_pretrained(
-        "./data/outputs/checkpoint-4250",
+        "./data/outputs/checkpoint",
         attn_implementation="sdpa",
         device_map="cuda",
     )
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         [
             {
                 "role": "user",
-                "content": "原神について教えて",
+                "content": "こんにちは！",
             }
         ],
         [],

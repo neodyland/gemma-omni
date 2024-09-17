@@ -1,17 +1,17 @@
 from torch import nn
-from transformers import GemmaTokenizerFast
+from transformers import Qwen2TokenizerFast
 import torch
 from .snac_gasi import SnacGasi
 from typing import List, Dict
 import numpy as np
 
 
-class GemmaOmni(nn.Module):
+class LLMOmni(nn.Module):
     def __init__(self, device="cuda") -> None:
         super().__init__()
         self.snac = SnacGasi()
-        self.audio_token = "<audio_placeholder>"
-        self.tokenizer: GemmaTokenizerFast = GemmaTokenizerFast.from_pretrained(
+        self.audio_token = "<|speech|>"
+        self.tokenizer: Qwen2TokenizerFast = Qwen2TokenizerFast.from_pretrained(
             "./data/llm"
         )
         self.audio_start_token_id = self.tokenizer.convert_tokens_to_ids(
@@ -53,7 +53,7 @@ class GemmaOmni(nn.Module):
 
 
 if __name__ == "__main__":
-    model = GemmaOmni()
+    model = LLMOmni()
     import librosa
     from unsloth import FastLanguageModel
 
@@ -64,7 +64,7 @@ if __name__ == "__main__":
         [
             {
                 "role": "user",
-                "content": "<audio_placeholder>おはよう",
+                "content": "<|speech|>おはよう",
             }
         ],
         [audio],

@@ -1,6 +1,6 @@
 from datasets import load_dataset
 from io import BytesIO
-from model.gemma_omni import GemmaOmni
+from model.llm_omni import LLMOmni
 import librosa
 import requests
 from datasets import load_dataset
@@ -9,7 +9,7 @@ import urllib
 from tqdm import tqdm
 
 
-def collate(model: GemmaOmni):
+def collate(model: LLMOmni):
     b = load_dataset("saldra/sakura_japanese_dataset", split="train")
     for i, e in tqdm(enumerate(b["instruction"])):
         chat = [
@@ -29,7 +29,7 @@ def create_wav(text: str):
 
 
 if __name__ == "__main__":
-    model = GemmaOmni()
+    model = LLMOmni()
     for i, e in enumerate(collate(model)):
         with open(f"./data/ds/{i}.txt", "w", encoding="utf8") as w:
             w.write(model.tokenizer.decode(e))

@@ -1,15 +1,15 @@
 import torch
-from transformers import Gemma2ForCausalLM, GemmaTokenizerFast
+from transformers import Qwen2ForCausalLM, Qwen2TokenizerFast
 from model.snac_gasi import SnacGasi
 
-llm: Gemma2ForCausalLM = Gemma2ForCausalLM.from_pretrained(
-    "unsloth/gemma-2-2b-it-bnb-4bit", torch_dtype=torch.bfloat16
+llm: Qwen2ForCausalLM = Qwen2ForCausalLM.from_pretrained(
+    "unsloth/Qwen2-1.5B-bnb-4bit", torch_dtype=torch.bfloat16
 )
-tokenizer: GemmaTokenizerFast = GemmaTokenizerFast.from_pretrained(
-    "unsloth/gemma-2-2b-it-bnb-4bit"
+tokenizer: Qwen2TokenizerFast = Qwen2TokenizerFast.from_pretrained(
+    "unsloth/Qwen2-1.5B-bnb-4bit"
 )
 snac = SnacGasi()
-tokenizer.chat_template = tokenizer.chat_template.replace("model", "audio")
+tokenizer.chat_template = tokenizer.chat_template.replace("assistant", "speech")
 tokenizer.add_tokens([f"<audio_token_{i + 1}>" for i in range(snac.size)])
 llm.resize_token_embeddings(len(tokenizer))
 llm.save_pretrained("./data/llm")

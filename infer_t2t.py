@@ -1,10 +1,10 @@
-from model.gemma_omni import GemmaOmni
+from model.llm_omni import LLMOmni
 from transformers import TextStreamer
 import torch
 from unsloth import FastLanguageModel
 
 if __name__ == "__main__":
-    model = GemmaOmni()
+    model = LLMOmni()
     model.tokenizer.chat_template = model.tokenizer.chat_template.replace(
         "audio", "model"
     )
