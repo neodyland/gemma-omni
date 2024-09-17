@@ -26,10 +26,19 @@ class LLMOmni(nn.Module):
         conv: List[Dict[str, str]],
         audios: List[np.ndarray],
         add_generation_prompt=True,
+        speech=True,
     ):
+        if not speech:
+            self.tokenizer.chat_template = self.tokenizer.chat_template.replace(
+                "assistant_speech", "assistant"
+            )
         prompt = self.tokenizer.apply_chat_template(
             conv, tokenize=False, add_generation_prompt=add_generation_prompt
         )
+        if not speech:
+            self.tokenizer.chat_template = self.tokenizer.chat_template.replace(
+                "assistant", "assistant_speech"
+            )
         parts = []
         audios = [
             self.snac.encode(

@@ -22,6 +22,7 @@ if __name__ == "__main__":
             }
         ],
         [],
+        speech=False,
     ).to(llm.device)
     with torch.inference_mode():
         res = llm.generate(
