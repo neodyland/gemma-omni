@@ -10,7 +10,7 @@ import torch
 torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.allow_tf32 = True
 
-max_seq_length = 4096
+max_seq_length = 5120
 ds = load_dataset("googlefan/guanaco-jp-audio", split="train")
 
 model, tokenizer = FastLanguageModel.from_pretrained(
