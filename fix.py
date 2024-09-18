@@ -6,7 +6,10 @@ llm: Qwen2ForCausalLM = Qwen2ForCausalLM.from_pretrained(
     "Qwen/Qwen2.5-1.5B-Instruct",
     torch_dtype=torch.bfloat16,
     quantization_config=BitsAndBytesConfig(
-        load_in_4bit=True, bnb_4bit_compute_dtype="nf4", bnb_4bit_use_double_quant=True
+        load_in_4bit=True,
+        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_use_double_quant=True,
     ),
 )
 tokenizer: Qwen2TokenizerFast = Qwen2TokenizerFast.from_pretrained(
