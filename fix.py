@@ -1,12 +1,16 @@
 import torch
-from transformers import Qwen2ForCausalLM, Qwen2TokenizerFast
+from transformers import Qwen2ForCausalLM, Qwen2TokenizerFast, BitsAndBytesConfig
 from model.snac_gasi import SnacGasi
 
 llm: Qwen2ForCausalLM = Qwen2ForCausalLM.from_pretrained(
-    "unsloth/Qwen2-1.5B-bnb-4bit", torch_dtype=torch.bfloat16
+    "Qwen/Qwen2.5-1.5B-Instruct",
+    torch_dtype=torch.bfloat16,
+    quantization_config=BitsAndBytesConfig(
+        load_in_4bit=True, bnb_4bit_compute_dtype="nf4", bnb_4bit_use_double_quant=True
+    ),
 )
 tokenizer: Qwen2TokenizerFast = Qwen2TokenizerFast.from_pretrained(
-    "unsloth/Qwen2-1.5B-bnb-4bit"
+    "Qwen/Qwen2.5-1.5B-Instruct"
 )
 snac = SnacGasi()
 tokenizer.chat_template = "{% for message in messages %}{{'<|im_start|>' + message['role'] + '\n' + message['content'] + '<|im_end|>' + '\n'}}{% endfor %}{% if add_generation_prompt %}{{ '<|im_start|>assistant_speech\n' }}{% endif %}"
