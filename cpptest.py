@@ -2,17 +2,21 @@ from openai import OpenAI
 from model.llm_omni import LLMOmni
 import torch
 import soundfile as sf
+import os
 
+speech = False
 ai = OpenAI(base_url="http://localhost:8080", api_key="hello")
 model = LLMOmni()
 
 res = ai.completions.create(
     model="default",
     prompt=model.tokenizer.apply_chat_template(
-        [{"role": "user", "content": "おはようございます。"}],
+        [{"role": "user", "content": "LLMについて教えて"}],
         tokenize=False,
         add_generation_prompt=True,
-    )[len(model.tokenizer.bos_token) :],
+    )[len(model.tokenizer.bos_token) if model.tokenizer.bos_token else 0 :].replace(
+        "assistant_speech", "assistant_speech" if speech else "assistant"
+    ),
     stream=True,
     extra_body={
         "repeat_penalty": 1.2,
@@ -24,6 +28,8 @@ for chunk in res:
     if c:
         last += c
     print(c if c else "\n", end="", flush=True)
+if not speech:
+    os._exit(0)
 with torch.inference_mode():
     ts = torch.tensor(
         [

@@ -3,3 +3,4 @@ data/
 venv/
 llama.cpp/
 _unsloth*/
+*.log

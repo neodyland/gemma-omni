@@ -6,7 +6,7 @@ from unsloth import FastLanguageModel
 if __name__ == "__main__":
     model = LLMOmni()
     llm, _ = FastLanguageModel.from_pretrained(
-        "./data/outputs/checkpoint-2500",
+        "./data/outputs/checkpoint",
         attn_implementation="sdpa",
         device_map="cuda",
     )
