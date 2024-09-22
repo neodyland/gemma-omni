@@ -61,8 +61,8 @@ if __name__ == "__main__":
     snac = SnacGasi()
     print(
         snac.encode(
-            torch.from_numpy(librosa.load("./data/wavs/vicuna_1.wav", sr=24000)[0])
+            torch.from_numpy(librosa.load("./data/sample.wav", sr=24000)[0])
             .unsqueeze(0)
             .unsqueeze(0)
-        ).size(1)
+        ).shape
     )
