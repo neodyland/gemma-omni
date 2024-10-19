@@ -7,7 +7,7 @@ class SnacGasi(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         self.model = SNAC.from_pretrained("hubertsiuzdak/snac_24khz")
-        self.vocab_size = self.model.codebook_size * sum(self.model.vq_strides)
+        self.vocab_size = self.model.codebook_size * len(self.model.vq_strides)
         self.sr = 24000
 
     @torch.inference_mode()
@@ -27,7 +27,7 @@ class SnacGasi(nn.Module):
                 )
                 ids_new.extend(
                     [
-                        x + self.model.codebook_size * 3
+                        x + self.model.codebook_size * 2
                         for x in ids[2][b][i * 4 : i * 4 + 4].tolist()
                     ]
                 )
@@ -56,10 +56,10 @@ class SnacGasi(nn.Module):
                 )
                 ids_old_3.extend(
                     [
-                        ids[b, i + 3] - self.model.codebook_size * 3,
-                        ids[b, i + 4] - self.model.codebook_size * 3,
-                        ids[b, i + 5] - self.model.codebook_size * 3,
-                        ids[b, i + 6] - self.model.codebook_size * 3,
+                        ids[b, i + 3] - self.model.codebook_size * 2,
+                        ids[b, i + 4] - self.model.codebook_size * 2,
+                        ids[b, i + 5] - self.model.codebook_size * 2,
+                        ids[b, i + 6] - self.model.codebook_size * 2,
                     ],
                 )
             ids_old_all_1.append(ids_old_1)
